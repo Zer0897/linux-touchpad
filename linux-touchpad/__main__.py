@@ -1,42 +1,71 @@
-import subprocess as subp
+import os
+import sys
 import asyncio as aio
-import re
+import signal
+from contextlib import suppress
 
-touchpad_id = '16'
-mouse_name = 'Logitech M510'
+from .touchpad import SIGTOGGLE, toggle, watchdevices
 
-devicelist_re = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
-enabled_re = re.compile(r'(?:Device Enabled.*\t)(1)')
-
-
-async def run(command):
-    ps = await aio.create_subprocess_exec(*command, stdout=subp.PIPE)
-    raw = await ps.stdout.read()
-    return raw.decode()
+path, _ = os.path.split(__file__)
 
 
-async def getdevices() -> dict:
-    rawout = await run(['xinput', 'list'])
-    return re.findall(devicelist_re, rawout)
+class Lock:
+
+    _lock = os.path.join(path, '.lock')
+
+    def __enter__(self):
+        self.lock()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.unlock()
+
+    def lock(self):
+        assert not self.locked
+        with open(self._lock, 'w+') as fp:
+            fp.write(str(os.getpid()))
+
+    def unlock(self):
+        os.remove(self._lock)
+
+    def kill(self, signum, frame):
+        with suppress(FileNotFoundError):
+            self.unlock()
+        sys.exit()
+
+    @property
+    def locked(self):
+        return os.path.exists(self._lock)
+
+    @classmethod
+    def get_process(cls):
+        with open(cls._lock) as fp:
+            return int(fp.read())
 
 
-async def isenabled(device_id) -> bool:
-    rawout = await run(['xinput', 'list-props', touchpad_id])
-    return bool(re.search(enabled_re, rawout))
+def start():
+    with Lock() as lock:
+        signal.signal(signal.SIGTERM, lock.kill)
+        signal.signal(SIGTOGGLE, toggle)
+
+        aio.run(watchdevices())
 
 
-async def watchdevices():
-    while True:
-        devices = await getdevices()
-        names = (name for name, _ in devices)
-        touchpad_enabled: bool = await isenabled(touchpad_id)
-        if mouse_name in names:
-            if touchpad_enabled:
-                subp.run(['xinput', 'disable', touchpad_id])
-        elif not touchpad_enabled:
-            subp.run(['xinput', 'enable', touchpad_id])
-
-        await aio.sleep(1)
+def signal_toggle():
+    pid = Lock.get_process()
+    signal.pthread_kill(pid, SIGTOGGLE)
 
 
-aio.run(watchdevices())
+options = {
+    'start': start,
+    'toggle': signal_toggle
+}
+
+
+if __name__ == '__main__':
+
+    if len(sys.argv) != 2 or sys.argv[1] not in options:
+        raise TypeError("Invalid arguments")
+
+    command = options.get(sys.argv[1])
+    command()
