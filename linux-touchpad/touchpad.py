@@ -10,13 +10,19 @@ devicelist_re = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
 enabled_re = re.compile(r'(?:Device Enabled.*\t)(1)')
 
 SIGTOGGLE = signal.SIGUSR1
+
 toggled: bool = False
+running: bool = True
 
 
-async def toggle(signum, frame):
+def toggle():
     global toggled
-    while True:
-        toggled = not toggled
+    toggled = not toggled
+
+
+def kill():
+    global running
+    running = False
 
 
 async def run(command):
@@ -44,15 +50,18 @@ async def enable():
 
 
 async def watchdevices():
-    while True:
-        devices = await getdevices()
-        names = (name for name, _ in devices)
+    while running:
         touchpad_enabled: bool = await isenabled(touchpad_id)
-
-        if mouse_name in names and not toggled:
-            if touchpad_enabled:
-                await disable()
-        elif not touchpad_enabled:
+        if toggled and not touchpad_enabled:
             await enable()
+        elif not toggled:
+            devices = await getdevices()
+            names = (name for name, _ in devices)
 
+            if mouse_name in names:
+                if touchpad_enabled:
+                    await disable()
+
+            elif not touchpad_enabled:
+                await enable()
         await aio.sleep(1)

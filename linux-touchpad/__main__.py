@@ -1,64 +1,36 @@
-import os
 import sys
+import os
 import asyncio as aio
 import signal
-from contextlib import suppress
 
-from .touchpad import SIGTOGGLE, toggle, watchdevices
+from . import lock
 
-path, _ = os.path.split(__file__)
-
-
-class Lock:
-
-    _lock = os.path.join(path, '.lock')
-
-    def __enter__(self):
-        self.lock()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.unlock()
-
-    def lock(self):
-        assert not self.locked
-        with open(self._lock, 'w+') as fp:
-            fp.write(str(os.getpid()))
-
-    def unlock(self):
-        os.remove(self._lock)
-
-    def kill(self, signum, frame):
-        with suppress(FileNotFoundError):
-            self.unlock()
-        sys.exit()
-
-    @property
-    def locked(self):
-        return os.path.exists(self._lock)
-
-    @classmethod
-    def get_process(cls):
-        with open(cls._lock) as fp:
-            return int(fp.read())
+from .touchpad import SIGTOGGLE, watchdevices
+from .process import handler
 
 
 def start():
-    with Lock() as lock:
-        signal.signal(signal.SIGTERM, lock.kill)
-        signal.signal(SIGTOGGLE, toggle)
+    with lock.lock():
+        signal.signal(signal.SIGTERM, handler)
+        signal.signal(SIGTOGGLE, handler)
 
         aio.run(watchdevices())
 
 
 def signal_toggle():
-    pid = Lock.get_process()
-    signal.pthread_kill(pid, SIGTOGGLE)
+    pid = lock.getuid()
+    os.kill(pid, SIGTOGGLE)
+
+
+def signal_kill():
+    pid = lock.getuid()
+    os.kill(pid, signal.SIGTERM)
 
 
 options = {
     'start': start,
-    'toggle': signal_toggle
+    'toggle': signal_toggle,
+    'kill': signal_kill
 }
 
 
