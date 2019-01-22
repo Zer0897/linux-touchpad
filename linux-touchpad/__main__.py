@@ -3,27 +3,30 @@ import os
 import asyncio as aio
 import signal
 
-from . import lock
-
+from .lock import Lock, LockExistsError
 from .touchpad import SIGTOGGLE, watchdevices
 from .process import handler
 
 
 def start():
-    with lock.lock():
-        signal.signal(signal.SIGTERM, handler)
-        signal.signal(SIGTOGGLE, handler)
+    try:
+        with Lock():
+            signal.signal(signal.SIGTERM, handler)
+            signal.signal(SIGTOGGLE, handler)
 
-        aio.run(watchdevices())
+            aio.run(watchdevices())
+
+    except LockExistsError:
+        pass
 
 
 def signal_toggle():
-    pid = lock.getuid()
+    pid = Lock.getpid()
     os.kill(pid, SIGTOGGLE)
 
 
 def signal_kill():
-    pid = lock.getuid()
+    pid = Lock.getpid()
     os.kill(pid, signal.SIGTERM)
 
 

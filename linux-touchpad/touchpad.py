@@ -3,7 +3,7 @@ import signal
 import asyncio as aio
 import re
 
-touchpad_id = '16'
+touchpad_name = '1A582000:00 06CB:CD73 Touchpad'
 mouse_name = 'Logitech M510'
 
 devicelist_re = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
@@ -33,35 +33,40 @@ async def run(command):
 
 async def getdevices() -> dict:
     rawout = await run(['xinput', 'list'])
-    return re.findall(devicelist_re, rawout)
+    return {name: id for name, id in re.findall(devicelist_re, rawout)}
+
+
+async def getdeviceid(device_name) -> str:
+    devices = await getdevices()
+    return devices[device_name]
 
 
 async def isenabled(device_id) -> bool:
-    rawout = await run(['xinput', 'list-props', touchpad_id])
+    rawout = await run(['xinput', 'list-props', device_id])
     return bool(re.search(enabled_re, rawout))
 
 
-async def disable():
-    subp.run(['xinput', 'disable', touchpad_id])
+async def disable(device_id):
+    subp.run(['xinput', 'disable', device_id])
 
 
-async def enable():
-    subp.run(['xinput', 'enable', touchpad_id])
+async def enable(device_id):
+    subp.run(['xinput', 'enable', device_id])
 
 
 async def watchdevices():
+    touchpad_id = await getdeviceid(touchpad_name)
     while running:
         touchpad_enabled: bool = await isenabled(touchpad_id)
         if toggled and not touchpad_enabled:
-            await enable()
+            await enable(touchpad_id)
         elif not toggled:
             devices = await getdevices()
-            names = (name for name, _ in devices)
 
-            if mouse_name in names:
+            if mouse_name in devices:
                 if touchpad_enabled:
-                    await disable()
+                    await disable(touchpad_id)
 
             elif not touchpad_enabled:
-                await enable()
+                await enable(touchpad_id)
         await aio.sleep(1)

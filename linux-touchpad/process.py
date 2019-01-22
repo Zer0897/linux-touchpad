@@ -1,18 +1,15 @@
-import signal
-
-from . import lock
-from .touchpad import SIGTOGGLE, toggle
+import os
+from contextlib import suppress
+from . import touchpad as tp
 
 
 def handler(signum, frame):
-    command = sigmap.get(signum)
-    if command:
-        command()
+    if signum == tp.SIGTOGGLE:
+        tp.toggle()
     else:
-        lock.cleanup()
+        tp.kill()
 
 
-sigmap = {
-    signal.SIGKILL: lock.cleanup,
-    SIGTOGGLE: toggle
-}
+def kill(ps):
+    with suppress(ProcessLookupError):
+        os.kill(ps, 9)

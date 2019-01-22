@@ -1,42 +1,44 @@
 import os
-from contextlib import contextmanager, suppress
-from .touchpad import kill
+from contextlib import suppress
 
-path, _ = os.path.split(__file__)
-_lock = os.path.join(path, '.lock')
+from .process import kill
 
 
-@contextmanager
-def lock():
-    already_locked = False
-    try:
-        create_lock()
-        yield getuid
-
-    except AssertionError:
-        already_locked = True
-
-    finally:
-        if not already_locked:
-            cleanup()
+class LockExistsError(Exception):
+    pass
 
 
-def islocked() -> bool:
-    return os.path.exists(_lock)
+class Lock:
 
+    path, _ = os.path.split(__file__)
+    _lock = os.path.join(path, '.lock')
 
-def create_lock():
-    assert not islocked()
-    with open(_lock, 'w+') as fp:
-        fp.write(str(os.getpid()))
+    def __init__(self):
+        if self.islocked():
+            lockpid = self.getpid()
+            kill(lockpid)
+            self.cleanup()
 
+    def __enter__(self):
+        self.create_lock()
+        return self
 
-def cleanup():
-    with suppress(FileNotFoundError):
-        os.remove(_lock)
-    kill()
+    def __exit__(self, *args):
+        self.cleanup()
 
+    def create_lock(self):
+        with open(Lock._lock, 'w+') as fp:
+            fp.write(str(os.getpid()))
 
-def getuid():
-    with open(_lock) as fp:
-        return int(fp.read())
+    def cleanup(self):
+        with suppress(FileNotFoundError):
+            os.remove(self._lock)
+
+    @staticmethod
+    def islocked() -> bool:
+        return os.path.exists(Lock._lock)
+
+    @staticmethod
+    def getpid():
+        with open(Lock._lock) as fp:
+            return int(fp.read())
