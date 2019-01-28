@@ -4,7 +4,8 @@ import asyncio as aio
 import re
 
 touchpad_name = '1A582000:00 06CB:CD73 Touchpad'
-mouse_name = 'Logitech M510'
+with open('linux-touchpad/.mouse') as file:
+    mouse_names = [l.strip('\n') for l in file]
 
 devicelist_re = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
 enabled_re = re.compile(r'(?:Device Enabled.*\t)(1)')
@@ -62,11 +63,11 @@ async def watchdevices():
             await enable(touchpad_id)
         elif not toggled:
             devices = await getdevices()
+            for name in mouse_names:
+                if name.strip('\n') in devices:
+                    if touchpad_enabled:
+                        await disable(touchpad_id)
 
-            if mouse_name in devices:
-                if touchpad_enabled:
-                    await disable(touchpad_id)
-
-            elif not touchpad_enabled:
-                await enable(touchpad_id)
+                elif not touchpad_enabled:
+                    await enable(touchpad_id)
         await aio.sleep(1)
