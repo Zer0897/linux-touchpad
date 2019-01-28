@@ -2,9 +2,13 @@ import subprocess as subp
 import signal
 import asyncio as aio
 import re
+import os
+
+path = os.path.abspath(__file__)
+path, _ = os.path.split(path)
 
 touchpad_name = '1A582000:00 06CB:CD73 Touchpad'
-with open('linux-touchpad/.mouse') as file:
+with open(f'{path}/.mouse') as file:
     mouse_names = [l.strip('\n') for l in file]
 
 devicelist_re = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
@@ -63,11 +67,14 @@ async def watchdevices():
             await enable(touchpad_id)
         elif not toggled:
             devices = await getdevices()
+            found: bool = False
             for name in mouse_names:
-                if name.strip('\n') in devices:
-                    if touchpad_enabled:
-                        await disable(touchpad_id)
+                if name in devices:
+                    found = True
 
-                elif not touchpad_enabled:
-                    await enable(touchpad_id)
+            if found and touchpad_enabled:
+                await disable(touchpad_id)
+
+            elif not found and not touchpad_enabled:
+                await enable(touchpad_id)
         await aio.sleep(1)
