@@ -30,6 +30,7 @@ def signal_kill():
     pid = Lock.getpid()
     os.kill(pid, signal.SIGTERM)
 
+
 parser = argparse.ArgumentParser()
 
 options = {
