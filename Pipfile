@@ -13,4 +13,4 @@ xlib = "*"
 python_version = "3.7"
 
 [scripts]
-start = "python -m linux-touchpad"
+start = "python -m src"
