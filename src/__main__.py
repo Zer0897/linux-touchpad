@@ -2,6 +2,7 @@ import sys
 import os
 import asyncio as aio
 import signal
+import argparse
 
 from .lock import Lock, LockExistsError
 from .touchpad import SIGTOGGLE, watchdevices
@@ -29,6 +30,7 @@ def signal_kill():
     pid = Lock.getpid()
     os.kill(pid, signal.SIGTERM)
 
+parser = argparse.ArgumentParser()
 
 options = {
     'start': start,
@@ -36,12 +38,12 @@ options = {
     'kill': signal_kill
 }
 
+parser.add_argument('command')
 
 if __name__ == '__main__':
-
-    if len(sys.argv) != 2 or sys.argv[1] not in options:
-        print(sys.argv)
-        raise TypeError("Invalid arguments")
-
-    command = options.get(sys.argv[1])
-    command()
+    args = parser.parse_args()
+    command = options.get(args.command)
+    if command is not None:
+        command()
+    else:
+        raise AttributeError(f'Invalid command "{args.command}"')
