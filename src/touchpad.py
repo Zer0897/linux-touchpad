@@ -1,23 +1,20 @@
 import subprocess as subp
 import signal
 import asyncio as aio
+import aiofiles
 import re
-import os
+from pathlib import Path
+from typing import Coroutine
 
-path = os.path.abspath(__file__)
-path, _ = os.path.split(path)
+
+MOUSE_FP = Path(__file__).with_name('.mouse')
+SIGTOGGLE = signal.SIGUSR1
+DEVICE_RE = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
+ENABLED_RE = re.compile(r'(?:Device Enabled.*\t)(1)')
 
 touchpad_name = '1A582000:00 06CB:CD73 Touchpad'
-with open(f'{path}/.mouse') as file:
-    mouse_names = [l.strip('\n') for l in file]
-
-devicelist_re = re.compile(r'(\w.+\b(?=\W.+id))(?:.+id=)(\d+)')
-enabled_re = re.compile(r'(?:Device Enabled.*\t)(1)')
-
-SIGTOGGLE = signal.SIGUSR1
-
-toggled: bool = False
-running: bool = True
+toggled = False
+running = True
 
 
 def toggle():
@@ -36,45 +33,51 @@ async def run(command):
     return raw.decode()
 
 
-async def getdevices() -> dict:
+async def get_devices() -> dict:
     rawout = await run(['xinput', 'list'])
-    return {name: id for name, id in re.findall(devicelist_re, rawout)}
+    return {name: id for name, id in re.findall(DEVICE_RE, rawout)}
 
 
-async def getdeviceid(device_name) -> str:
-    devices = await getdevices()
-    return devices[device_name]
+async def get_mouse_names() -> list:
+    async with aiofiles.open(str(MOUSE_FP)) as fp:
+        return set(l.strip('\n') async for l in fp)
 
 
-async def isenabled(device_id) -> bool:
+async def is_enabled(device_id) -> bool:
     rawout = await run(['xinput', 'list-props', device_id])
-    return bool(re.search(enabled_re, rawout))
+    return bool(re.search(ENABLED_RE, rawout))
 
 
-async def disable(device_id):
-    subp.run(['xinput', 'disable', device_id])
+async def disable_device(device_id):
+    await run(['xinput', 'disable', device_id])
 
 
-async def enable(device_id):
-    subp.run(['xinput', 'enable', device_id])
+async def enable_device(device_id):
+    await run(['xinput', 'enable', device_id])
 
 
-async def watchdevices():
-    touchpad_id = await getdeviceid(touchpad_name)
+async def get_action() -> Coroutine:
+    global touchpad_name
+    global toggled
+
+    mouse_names, all_devices = await aio.gather(
+        get_mouse_names(), get_devices()
+    )
+    touchpad_id = all_devices[touchpad_name]
+    mouse_exists = bool(set(all_devices) & mouse_names)
+    touchpad_enabled = await is_enabled(touchpad_id)
+
+    if (toggled or not mouse_exists) and not touchpad_enabled:
+        return enable_device(touchpad_id)
+    elif mouse_exists and touchpad_enabled and not toggled:
+        return disable_device(touchpad_id)
+
+    return aio.sleep(0)
+
+
+async def watch_devices():
+    global running
+
+    action = await get_action()
     while running:
-        touchpad_enabled: bool = await isenabled(touchpad_id)
-        if toggled and not touchpad_enabled:
-            await enable(touchpad_id)
-        elif not toggled:
-            devices = await getdevices()
-            found: bool = False
-            for name in mouse_names:
-                if name in devices:
-                    found = True
-
-            if found and touchpad_enabled:
-                await disable(touchpad_id)
-
-            elif not found and not touchpad_enabled:
-                await enable(touchpad_id)
-        await aio.sleep(1)
+        action, _ = aio.gather(get_action(), action)
