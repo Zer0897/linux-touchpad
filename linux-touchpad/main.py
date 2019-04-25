@@ -2,6 +2,7 @@ import os
 import asyncio as aio
 import signal
 import argparse
+from operator import itemgetter
 
 from .lock import Lock, LockExistsError
 from .touchpad import SIGTOGGLE, watch_devices
@@ -31,16 +32,18 @@ def signal_kill():
 
 
 def main():
-    options = {
+    choices = {
         'start': start,
         'toggle': signal_toggle,
         'kill': signal_kill
     }
-    parser = argparse.ArgumentParser(prog="linux-touchpad")
-    parser.add_argument('command', choices=options)
+    parser = argparse.ArgumentParser(
+        prog="linux-touchpad",
+        description="Auto disable touchpad when mouse is detected."
+    )
+    parser.add_argument('command', choices=choices, type=itemgetter)
     args = parser.parse_args()
-    command = options[args.command]
-
+    command = args.command(choices)
     command()
 
 
