@@ -15,7 +15,7 @@ DESKTOP_APP_FP = (AUTOSTART / NAME).with_suffix('.desktop')
 
 def install(no_autostart=False):
     print('Downloading package...')
-    subp.run([sys.executable, '-m', 'pip', '--no-cache-dir', 'install', NAME])
+    subp.run([sys.executable, '-m', 'pip', '--update', 'install', NAME])
     print('Ok.')
 
     print('Installing...')
@@ -49,9 +49,9 @@ def install(no_autostart=False):
 def uninstall():
     print('Uninstalling...')
     subp.run([sys.executable, '-m', 'pip', 'uninstall', NAME])
-    COMMAND_FP.unlink()
-    if DESKTOP_APP_FP.exists():
-        DESKTOP_APP_FP.unlink()
+    for fp in (COMMAND_FP, DESKTOP_APP_FP):
+        if fp.exists():
+            fp.unlink()
 
 
 def main():
