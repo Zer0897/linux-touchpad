@@ -89,8 +89,8 @@ async def get_action() -> Coroutine:
         return enable_device(touchpad_id)
     elif mouse_exists and touchpad_enabled and not toggled:
         return disable_device(touchpad_id)
-
-    return aio.sleep(0)
+    else:
+        return aio.sleep(0)
 
 
 async def watch_devices():
