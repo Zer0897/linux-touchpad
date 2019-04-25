@@ -5,7 +5,6 @@ import aiofiles
 import re
 from pathlib import Path
 from typing import Coroutine
-from aiostream import stream
 
 
 MOUSE_FP = Path(__file__).with_name('.mouse')
@@ -37,7 +36,7 @@ async def run(command):
 async def get_touchpad_id(devices: dict) -> str:
     global touchpad_name
     if touchpad_name is None:
-        async for name in stream.iterate(devices):
+        for name in devices:
             await aio.sleep(0)
             if 'touchpad' in name.casefold():
                 touchpad_name = name
@@ -47,8 +46,8 @@ async def get_touchpad_id(devices: dict) -> str:
 
 async def get_devices() -> dict:
     rawout = await run(['xinput', 'list'])
-    out = stream.iterate(re.findall(DEVICE_RE, rawout))
-    return {name: id async for name, id in out}
+    out = re.findall(DEVICE_RE, rawout)
+    return dict(out)
 
 
 async def get_mouse_names() -> list:
