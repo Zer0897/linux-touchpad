@@ -36,16 +36,12 @@ def main():
         'toggle': signal_toggle,
         'kill': signal_kill
     }
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('command')
-
+    parser = argparse.ArgumentParser(prog="linux-touchpad")
+    parser.add_argument('command', choices=options)
     args = parser.parse_args()
-    command = options.get(args.command)
-    if command is not None:
-        command()
-    else:
-        parser.print_help()
+    command = options[args.command]
+
+    command()
 
 
 if __name__ == '__main__':
