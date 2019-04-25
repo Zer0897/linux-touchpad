@@ -4,7 +4,7 @@ import signal
 import argparse
 
 from .lock import Lock, LockExistsError
-from .touchpad import SIGTOGGLE, watchdevices
+from .touchpad import SIGTOGGLE, watch_devices
 from .process import handler
 
 
@@ -14,7 +14,7 @@ def start():
             signal.signal(signal.SIGTERM, handler)
             signal.signal(SIGTOGGLE, handler)
 
-            aio.run(watchdevices())
+            aio.run(watch_devices())
 
     except LockExistsError:
         pass
@@ -46,4 +46,4 @@ if __name__ == '__main__':
     if command is not None:
         command()
     else:
-        raise AttributeError(f'Invalid command "{args.command}"')
+        parser.print_help()
