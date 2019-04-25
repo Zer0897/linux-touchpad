@@ -26,7 +26,7 @@ def kill():
     running = False
 
 
-async def run(command: list):
+async def run(command: list) -> str:
     ps = await aio.create_subprocess_exec(*command, stdout=subp.PIPE)
     raw = await ps.stdout.read()
     return raw.decode()
