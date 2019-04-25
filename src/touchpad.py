@@ -47,7 +47,8 @@ async def get_touchpad_id(devices: dict) -> str:
 
 async def get_devices() -> dict:
     rawout = await run(['xinput', 'list'])
-    return {name: id for name, id in re.findall(DEVICE_RE, rawout)}
+    out = stream.iterate(re.findall(DEVICE_RE, rawout))
+    return {name: id async for name, id in out}
 
 
 async def get_mouse_names() -> list:
