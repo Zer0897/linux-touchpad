@@ -59,7 +59,7 @@ While running, this will toggle the touchpad on and off:
 ```
 linux-touchpad toggle
 ```
-*Tip: Set this command to a keyboard shortcut for mamimum convenience*
+*Tip: Set this command to a keyboard shortcut for maximum convenience*
 
 Finally, to stop the process entirely:
 ```
