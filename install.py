@@ -19,7 +19,7 @@ def install(no_autostart=False):
     print('Ok.')
 
     print('Installing...')
-    COMMAND_FP.write_text(f"{sys.executable} -m linux-touchpad\n")
+    COMMAND_FP.write_text(f"{sys.executable} -m linux-touchpad $1\n")
     COMMAND_FP.chmod(500)
     print('Ok.')
 
