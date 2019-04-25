@@ -15,7 +15,7 @@ DESKTOP_APP_FP = (AUTOSTART / NAME).with_suffix('.desktop')
 
 def install(no_autostart=False):
     print('Downloading package...')
-    subp.run([sys.executable, '-m', 'pip', '--update', 'install', NAME])
+    subp.run([sys.executable, '-m', 'pip', 'install', '--upgrade', NAME])
     print('Ok.')
 
     print('Installing...')
