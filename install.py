@@ -34,7 +34,7 @@ For the changes to take effect, run:
 def configure_path_msg():
     bin_dir = str(BIN)
     bashrc = str(HOME / '.bashrc')
-    script = rf'export PATH=\"{bin_dir}:$PATH\"'
+    script = rf'export PATH=\"$PATH:{bin_dir}\"'
     no_escape_script = script.replace("\\", "")
     cmd = f'echo {script} >> {str(HOME / ".bashrc")}'
 
