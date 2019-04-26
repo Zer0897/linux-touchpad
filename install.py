@@ -1,4 +1,5 @@
 import sys
+import os
 import subprocess as subp
 from pathlib import Path
 from argparse import ArgumentParser
@@ -11,6 +12,33 @@ BIN = HOME / '.local' / 'bin'
 
 COMMAND_FP = BIN / NAME
 DESKTOP_APP_FP = (AUTOSTART / NAME).with_suffix('.desktop')
+
+
+NOT_IN_PATH_MSG = """\
+***IMPORTANT***
+It looks like `{bin_dir}` isn't in PATH. \
+In order to use the tool, please add it with this command:
+
+    {cmd}
+
+Or manually by appending this to `{bashrc}`:
+
+    {no_escape_script}
+
+For the changes to take effect, run:
+
+    source {bashrc}
+"""
+
+
+def configure_path_msg():
+    bin_dir = str(BIN)
+    bashrc = str(HOME / '.bashrc')
+    script = rf'export PATH=\"{bin_dir}:$PATH\"'
+    no_escape_script = script.replace("\\", "")
+    cmd = f'echo {script} >> {str(HOME / ".bashrc")}'
+
+    print(NOT_IN_PATH_MSG.format(**vars()))
 
 
 def install(no_autostart=False):
@@ -75,3 +103,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+    if str(BIN) not in os.environ['PATH']:
+        configure_path_msg()
+    print('Install succeeded.')
