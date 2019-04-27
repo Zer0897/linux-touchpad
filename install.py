@@ -43,7 +43,7 @@ def configure_path_msg():
 
 def install(no_autostart=False):
     print('Downloading package...')
-    subp.run_command([sys.executable, '-m', 'pip', 'install', '--upgrade', NAME])
+    subp.run([sys.executable, '-m', 'pip', 'install', '--upgrade', NAME])
     print('Ok.')
 
     print('Installing...')
@@ -76,7 +76,7 @@ def install(no_autostart=False):
 
 def uninstall():
     print('Uninstalling...')
-    subp.run_command([sys.executable, '-m', 'pip', 'uninstall', NAME])
+    subp.run([sys.executable, '-m', 'pip', 'uninstall', NAME])
     for fp in (COMMAND_FP, DESKTOP_APP_FP):
         if fp.exists():
             fp.unlink()
