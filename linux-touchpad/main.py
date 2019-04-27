@@ -2,22 +2,18 @@ import os
 import signal
 import argparse
 
-from .lock import Lock, LockExistsError
+from .lock import Lock
 from .touchpad import SIGTOGGLE
 from .process import handler
 from .watchdog import WatchDog
 
 
 def start():
-    try:
-        with Lock():
-            signal.signal(signal.SIGTERM, handler)
-            signal.signal(SIGTOGGLE, handler)
-            watchdog = WatchDog()
-            watchdog.start()
-
-    except LockExistsError:
-        pass
+    with Lock():
+        watchdog = WatchDog()
+        signal.signal(signal.SIGTERM, handler)
+        signal.signal(SIGTOGGLE, handler)
+        watchdog.start()
 
 
 def signal_toggle():

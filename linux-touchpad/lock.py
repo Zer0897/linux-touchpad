@@ -1,12 +1,6 @@
 import os
 from contextlib import suppress
 
-from .process import kill
-
-
-class LockExistsError(Exception):
-    pass
-
 
 class Lock:
 
@@ -16,7 +10,8 @@ class Lock:
     def __init__(self):
         if self.islocked():
             lockpid = self.getpid()
-            kill(lockpid)
+            with suppress(ProcessLookupError):
+                os.kill(lockpid, 9)
             self.cleanup()
 
     def __enter__(self):
