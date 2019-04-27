@@ -78,7 +78,8 @@ class WatchDog:
     def refresh(self):
         if not self._touchpad:
             return
-        if self.devices:
+
+        if self.devices and not self._touchpad.toggled:
             self._touchpad.disable()
         else:
             self._touchpad.enable()

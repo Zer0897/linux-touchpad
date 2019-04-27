@@ -12,8 +12,7 @@ class TouchPad:
         self.name = self.device.parent.attributes.get('name').decode()
 
     def disable(self):
-        if not self.toggled:
-            subp.run(['xinput', 'disable', self.name])
+        subp.run(['xinput', 'disable', self.name])
 
     def enable(self):
         subp.run(['xinput', 'enable', self.name])
