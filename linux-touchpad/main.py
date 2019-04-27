@@ -16,13 +16,14 @@ def start():
 
 
 def signal_toggle():
-    pid = Lock.getpid()
-    os.kill(pid, SIGTOGGLE)
+    if Lock.is_locked():
+        pid = Lock.get_pid()
+        os.kill(pid, SIGTOGGLE)
 
 
 def signal_kill():
-    if Lock.islocked():
-        pid = Lock.getpid()
+    if Lock.is_locked():
+        pid = Lock.get_pid()
         os.kill(pid, signal.SIGTERM)
 
 

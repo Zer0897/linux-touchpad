@@ -14,7 +14,7 @@ class DeviceType(Enum):
 
 def identify(device: Device) -> DeviceType:
 
-    def look(device: Device, *items: Tuple[str, str]) -> Set['str']:
+    def look(*items: Tuple[str, str]) -> Set['str']:
         found = set()
         for dev in [device] + list(device.ancestors):
             for name, val in items:
@@ -24,7 +24,6 @@ def identify(device: Device) -> DeviceType:
         return found
 
     props = look(
-        device,
         ('removable', 'removable'),
         ('phys', 'usb'),
         ('name', 'mouse'),
