@@ -45,7 +45,6 @@ python ~/Downloads/install.py --no-autostart
 ```
 
 # Usage
-Note - If startup behavior is enabled (default), it will automatically start when you login.
 
 To begin:
 ```
