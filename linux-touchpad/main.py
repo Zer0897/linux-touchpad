@@ -4,15 +4,14 @@ import argparse
 
 from .lock import Lock
 from .touchpad import SIGTOGGLE
-from .process import handler
 from .watchdog import WatchDog
 
 
 def start():
     with Lock():
         watchdog = WatchDog()
-        signal.signal(signal.SIGTERM, handler)
-        signal.signal(SIGTOGGLE, handler)
+        signal.signal(signal.SIGTERM, watchdog.sig_handler)
+        signal.signal(SIGTOGGLE, watchdog.sig_handler)
         watchdog.start()
 
 

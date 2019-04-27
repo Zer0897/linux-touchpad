@@ -83,7 +83,7 @@ class WatchDog:
         else:
             self._touchpad.enable()
 
-    def handle(self, signum, frame):
+    def sig_handler(self, signum, frame):
         if signum == SIGTOGGLE:
             self._touchpad.toggle()
         else:
