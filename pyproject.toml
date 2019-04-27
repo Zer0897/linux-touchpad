@@ -16,9 +16,6 @@ pyudev = "^0.21.0"
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"
 
-[tool.poetry.scripts]
-touchpad = "linux-touchpad.main:main"
-
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
