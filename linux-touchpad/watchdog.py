@@ -1,5 +1,5 @@
 import sys
-from enum import Enum
+from enum import Enum, auto
 from pyudev import Context, Monitor, Device
 from contextlib import suppress
 from typing import Tuple, Set
@@ -7,16 +7,16 @@ from .touchpad import TouchPad, SIGTOGGLE
 
 
 class DeviceType(Enum):
-    TouchPad = 0
-    USB = 1
-    OTHER = 2
+    TouchPad = auto()
+    USB = auto()
+    Other = auto()
 
 
 def identify(device: Device) -> DeviceType:
 
     def look(*items: Tuple[str, str]) -> Set['str']:
         found = set()
-        for dev in [device] + list(device.ancestors):
+        for dev in [device, *device.ancestors]:
             for name, val in items:
                 prop = dev.attributes.get(name)
                 if prop and val in prop.decode().casefold():
@@ -35,7 +35,7 @@ def identify(device: Device) -> DeviceType:
 
     # USB but not removable probably means it's a controller
     if 'usb' in props:
-        return DeviceType.OTHER
+        return DeviceType.Other
 
     return DeviceType.TouchPad
 
