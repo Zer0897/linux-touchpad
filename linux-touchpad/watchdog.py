@@ -13,7 +13,27 @@ class DeviceType(Enum):
 
 
 def identify(device: Device) -> DeviceType:
+    """
+    Attempt to identify what kind of input device it is.
+    This can be tricky, because sometimes the drivers
+    are not immediately obvious, and controllers like to impersonate
+    an external mouse.
 
+    Instead of trying to find a static property that only TouchPads have,
+    we use the process of elimination to filter out common usb properties.
+
+    Args:
+        device : Device
+            The device in question, traverses its parents as well.
+
+    Returns:
+        DeviceType
+            The device indentity.
+
+    .. note::
+        If a device is improperly identified, it means it didn't get caught
+        by any of the attribute filters.
+    """
     def look(*items: Tuple[str, str]) -> Set['str']:
         found = set()
         for dev in [device, *device.ancestors]:
@@ -41,6 +61,9 @@ def identify(device: Device) -> DeviceType:
 
 
 class WatchDog:
+    """
+    The sentry for input device based events.
+    """
     context = Context()
 
     _devices = set()
@@ -50,6 +73,7 @@ class WatchDog:
         self.monitor = Monitor.from_netlink(self.context)
         self.monitor.filter_by('input')
 
+    def __refresh(self):
         for dev in self.context.list_devices(subsystem='input', sys_name='mouse*'):
             cls = identify(dev)
 
@@ -62,15 +86,22 @@ class WatchDog:
             elif cls is DeviceType.USB:
                 self._devices.add(dev)
 
-        self.update()
+        self.__update()
 
     def __on_device(self, device):
         action = getattr(self._devices, device.action)  # self._devices.add or self._devices.remove
-        with suppress(KeyError):
+        with suppress(KeyError):  # redundant
             action(device)
-        self.update()
+        self.__update()
+
+    def __update(self):
+        if self._devices and not self._touchpad.toggled:
+            self._touchpad.disable()
+        else:
+            self._touchpad.enable()
 
     def start(self):
+        self.__refresh()
         for device in iter(self.monitor.poll, None):
             valid: bool = all((
                 'mouse' in device.sys_name,
@@ -80,15 +111,9 @@ class WatchDog:
             if valid:
                 self.__on_device(device)
 
-    def update(self):
-        if self._devices and not self._touchpad.toggled:
-            self._touchpad.disable()
-        else:
-            self._touchpad.enable()
-
     def sig_handler(self, signum, frame):
         if signum == SIGTOGGLE:
             self._touchpad.toggle()
-            self.update()
+            self.__update()
         else:
             sys.exit()
