@@ -13,30 +13,30 @@ class DeviceClass(Enum):
 
 
 def identify(device) -> DeviceClass:
-    props = look(device, 'removable', 'phys')
+    props = look(
+        device,
+        ('removable', 'removable'),
+        ('phys', 'usb'),
+    )
 
-    def find_in(it, name):
-        return any(name in item.casefold() for item in it)
-
-    if 'removable' in props['removable']:
+    if 'removable' in props:
         return DeviceClass.Mouse
 
     # USB but not removable probably means it's a controller
-    if find_in(props['phys'], 'usb'):
+    if 'usb' in props:
         return DeviceClass.Other
 
     return DeviceClass.TouchPad
 
 
-def look(device, *names) -> dict:
-    data = defaultdict(list)
+def look(device, *items) -> set:
+    found = set()
     for dev in [device] + list(device.ancestors):
-        for name in names:
+        for name, val in items:
             prop = dev.attributes.get(name)
-            if prop is not None:
-                data[name].append(prop.decode())
-
-    return data
+            if prop and val in prop.decode():
+                found.add(name)
+    return found
 
 
 class WatchDog:
