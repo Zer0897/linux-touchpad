@@ -8,21 +8,22 @@ from .watchdog import WatchDog
 
 
 def start():
-    with Lock():
+    with Lock() as lock:
         watchdog = WatchDog()
-        signal.signal(signal.SIGTERM, watchdog.sig_handler)
-        signal.signal(SIGTOGGLE, watchdog.sig_handler)
+        signal.signal(signal.SIGTERM, lambda *args: lock.cleanup())
+        signal.signal(SIGTOGGLE, watchdog.on_toggle)
         watchdog.start()
 
 
 def signal_toggle():
-    pid = Lock.getpid()
-    os.kill(pid, SIGTOGGLE)
+    if Lock.is_locked():
+        pid = Lock.get_pid()
+        os.kill(pid, SIGTOGGLE)
 
 
 def signal_kill():
-    if Lock.islocked():
-        pid = Lock.getpid()
+    if Lock.is_locked():
+        pid = Lock.get_pid()
         os.kill(pid, signal.SIGTERM)
 
 

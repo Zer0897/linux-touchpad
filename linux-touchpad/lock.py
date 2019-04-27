@@ -8,8 +8,8 @@ class Lock:
     _lock: Path = Path(__file__).with_name('.lock')
 
     def __init__(self):
-        if self.islocked():
-            lockpid = self.getpid()
+        if self.is_locked():
+            lockpid = self.get_pid()
             with suppress(ProcessLookupError):
                 os.kill(lockpid, 9)
             self.cleanup()
@@ -29,9 +29,9 @@ class Lock:
             self._lock.unlink()
 
     @staticmethod
-    def islocked() -> bool:
+    def is_locked() -> bool:
         return Lock._lock.exists()
 
     @staticmethod
-    def getpid():
+    def get_pid():
         return int(Lock._lock.read_text())
