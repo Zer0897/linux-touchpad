@@ -8,10 +8,10 @@ from .watchdog import WatchDog
 
 
 def start():
-    with Lock():
+    with Lock() as lock:
         watchdog = WatchDog()
-        signal.signal(signal.SIGTERM, watchdog.sig_handler)
-        signal.signal(SIGTOGGLE, watchdog.sig_handler)
+        signal.signal(signal.SIGTERM, lambda *args: lock.cleanup())
+        signal.signal(SIGTOGGLE, watchdog.on_toggle)
         watchdog.start()
 
 

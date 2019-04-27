@@ -1,9 +1,8 @@
-import sys
 from enum import Enum, auto
 from pyudev import Context, Monitor, Device
 from contextlib import suppress
 from typing import Tuple, Set
-from .touchpad import TouchPad, SIGTOGGLE
+from .touchpad import TouchPad
 
 
 class DeviceType(Enum):
@@ -111,9 +110,6 @@ class WatchDog:
             if valid:
                 self.__on_device(device)
 
-    def sig_handler(self, signum, frame):
-        if signum == SIGTOGGLE:
-            self._touchpad.toggle()
-            self.__update()
-        else:
-            sys.exit()
+    def on_toggle(self, *args):
+        self._touchpad.toggle()
+        self.__update()
