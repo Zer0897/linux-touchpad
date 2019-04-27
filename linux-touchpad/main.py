@@ -1,11 +1,11 @@
 import os
-import asyncio as aio
 import signal
 import argparse
 
 from .lock import Lock, LockExistsError
-from .touchpad import SIGTOGGLE, watch_devices
+from .touchpad import SIGTOGGLE
 from .process import handler
+from .watchdog import WatchDog
 
 
 def start():
@@ -13,8 +13,8 @@ def start():
         with Lock():
             signal.signal(signal.SIGTERM, handler)
             signal.signal(SIGTOGGLE, handler)
-
-            aio.run(watch_devices())
+            watchdog = WatchDog()
+            watchdog.start()
 
     except LockExistsError:
         pass
