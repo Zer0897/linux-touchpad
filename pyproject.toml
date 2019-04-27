@@ -11,9 +11,7 @@ packages = [{ include = "linux-touchpad" }]
 
 [tool.poetry.dependencies]
 python = ">=3.6"
-uvloop = "^0.12.2"
 pyudev = "^0.21.0"
-aiojobs = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.7"
