@@ -19,7 +19,7 @@ aiojobs = "^0.2.2"
 flake8 = "^3.7"
 
 [tool.poetry.scripts]
-start = "linux-touchpad.main:main"
+touchpad = "linux-touchpad.main:main"
 
 [build-system]
 requires = ["poetry>=0.12"]

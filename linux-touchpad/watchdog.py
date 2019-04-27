@@ -86,5 +86,6 @@ class WatchDog:
     def sig_handler(self, signum, frame):
         if signum == SIGTOGGLE:
             self._touchpad.toggle()
+            self.refresh()
         else:
             sys.exit()

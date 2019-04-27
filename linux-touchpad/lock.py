@@ -1,11 +1,11 @@
 import os
 from contextlib import suppress
+from pathlib import Path
 
 
 class Lock:
 
-    path, _ = os.path.split(__file__)
-    _lock = os.path.join(path, '.lock')
+    _lock: Path = Path(__file__).with_name('.lock')
 
     def __init__(self):
         if self.islocked():
@@ -22,18 +22,16 @@ class Lock:
         self.cleanup()
 
     def create_lock(self):
-        with open(Lock._lock, 'w+') as fp:
-            fp.write(str(os.getpid()))
+        self._lock.write_text(str(os.getpid()))
 
     def cleanup(self):
         with suppress(FileNotFoundError):
-            os.remove(self._lock)
+            self._lock.unlink()
 
     @staticmethod
     def islocked() -> bool:
-        return os.path.exists(Lock._lock)
+        return Lock._lock.exists()
 
     @staticmethod
     def getpid():
-        with open(Lock._lock) as fp:
-            return int(fp.read())
+        return int(Lock._lock.read_text())
