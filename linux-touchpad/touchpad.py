@@ -13,12 +13,11 @@ class TouchPad:
         self.device = device
         self.name = self.device.parent.attributes.get('name').decode()
 
-        out = subp.run(['xinput', 'list', self.name], capture_output=True)
-        _, self.id = re.search(DEVICE_RE, out.stdout.decode()).groups()
-
     def disable(self):
+        print('disabled')
         if not self.toggled:
-            subp.run(['xinput', 'disable', self.id])
+            subp.run(['xinput', 'disable', self.name])
 
     def enable(self):
-        subp.run(['xinput', 'enable', self.id])
+        print('enabled')
+        subp.run(['xinput', 'enable', self.name])

@@ -29,17 +29,21 @@ class WatchDog:
                 cls = identify(device)
                 if cls is DeviceClass.Mouse and hasattr(self, device.action):
                     action = getattr(self, device.action)
-                    action()
+                    action(device)
 
     def add(self, device):
         self.devices.add(device)
+        self.refresh()
 
     def remove(self, device):
-        if device.sys_name in self.devices:
-            del self.devices[device.sys_name]
+        if device in self.devices:
+            self.devices.remove(device)
+        self.refresh()
 
     def refresh(self):
+        if not self._touchpad:
+            return
         if self.devices:
-            self._touchpad.enable()
-        else:
             self._touchpad.disable()
+        else:
+            self._touchpad.enable()
