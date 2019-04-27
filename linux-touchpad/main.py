@@ -21,8 +21,9 @@ def signal_toggle():
 
 
 def signal_kill():
-    pid = Lock.getpid()
-    os.kill(pid, signal.SIGTERM)
+    if Lock.islocked():
+        pid = Lock.getpid()
+        os.kill(pid, signal.SIGTERM)
 
 
 def main():
