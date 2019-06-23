@@ -1,46 +1,59 @@
 import os
-import signal
 import argparse
-
-from .lock import Lock
+import logging as log
+import filelock as fl
+from pathlib import Path
+from signal import signal, SIGTERM
+from contextlib import suppress, contextmanager
+# from .lock import Lock
 from .touchpad import SIGTOGGLE
 from .watchdog import WatchDog
 
+lockfp: Path = Path(__file__).with_name('.lock')
+pidfp : Path = lockfp.with_name('.pid')
+lock = fl.FileLock(str(lockfp), timeout=1)
+
 
 def start():
-    with Lock() as lock:
+    """Try to begin process. Fail if lock exists."""
+    with suppress(fl.Timeout), lock:
         watchdog = WatchDog()
-        signal.signal(signal.SIGTERM, lambda *args: lock.cleanup())
-        signal.signal(SIGTOGGLE, watchdog.on_toggle)
+
+        # Handle toggle and kill signals
+        signal(SIGTOGGLE, watchdog.on_toggle)
+        pidfp.write_text(str(os.getpid()))
+        log.info('Starting watchdog.')
         watchdog.start()
 
+def stop():
+    """Kill existing process if exists."""
+    with suppress(FileNotFoundError):
+        pid = int(pidfp.read_text())
+        pidfp.unlink()
+        log.info(f'Killing {pid}.')
+        os.kill(pid, SIGTERM)
 
-def signal_toggle():
-    if Lock.is_locked():
-        pid = Lock.get_pid()
+def toggle():
+    """Send toggle signal to existing process if exists."""
+    with suppress(FileNotFoundError):
+        pid = int(pidfp.read_text())
+        log.info('Requesting Toggle.')
         os.kill(pid, SIGTOGGLE)
 
 
-def signal_kill():
-    if Lock.is_locked():
-        pid = Lock.get_pid()
-        os.kill(pid, signal.SIGTERM)
-
-
 def main():
-    choices = {
+    items = {
         'start': start,
-        'toggle': signal_toggle,
-        'kill': signal_kill
+        'stop': stop,
+        'toggle': toggle
     }
     parser = argparse.ArgumentParser(
         prog="linux-touchpad",
         description="Auto disable touchpad when mouse is detected."
     )
-    parser.add_argument('command', choices=choices)
+    parser.add_argument('command', choices=items)
     args = parser.parse_args()
-    command = choices[args.command]
-    command()
+    items[args.command]()
 
 
 if __name__ == '__main__':
