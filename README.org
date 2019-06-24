@@ -26,7 +26,7 @@ unix systems.
    #+end_src
 ** Stop
    #+begin_src bash
-   $ linux-touchpad kill
+   $ linux-touchpad stop
    #+end_src
 * Author
  [[https://github.com/Zer0897][Noah Corona]] \\
