@@ -5,7 +5,6 @@ import filelock as fl
 from pathlib import Path
 from signal import signal, SIGTERM
 from contextlib import suppress, contextmanager
-# from .lock import Lock
 from .touchpad import SIGTOGGLE
 from .watchdog import WatchDog
 
