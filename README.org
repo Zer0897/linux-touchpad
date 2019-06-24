@@ -12,22 +12,22 @@ unix systems.
   | Python 3.7 | https://www.python.org/downloads/release/python-373/ |
   | Xinput     | https://wiki.archlinux.org/index.php/Xinput          |
 * Install
-  ```bash
+  #+begin_src bash
   $ pip install linux-touchpad
-  ```
+  #+end_src
 * Usage
 ** Start
-   ```bash
+   #+begin_src bash
    $ linux-touchpad start
-   ```
+   #+end_src bash
 ** Toggle
-   ```bash
+   #+begin_src bash
    $ linux-touchpad toggle
-   ```
+   #+end_src
 ** Stop
-   ```bash
+   #+begin_src bash
    $ linux-touchpad kill
-   ```
+   #+end_src
 * Author
  [[https://github.com/Zer0897][Noah Corona]] \\
  [[mailto:noah@coronasoftware.net][noah@coronasoftware.net]]
