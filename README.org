@@ -1,0 +1,35 @@
+#+title: Linux Touchpad
+#+author: Noah Corona
+#+email: noah@coronasoftware.net
+#+description: A simple tool for managing your touchpad.
+
+Disable touchpad when a mouse is plugged in.
+
+Does its best at guessing device type, it should work for most
+unix systems.
+
+* Dependencies
+  | Python 3.7 | https://www.python.org/downloads/release/python-373/ |
+  | Xinput     | https://wiki.archlinux.org/index.php/Xinput          |
+* Install
+  ```bash
+  $ pip install linux-touchpad
+  ```
+* Usage
+** Start
+   ```bash
+   $ linux-touchpad start
+   ```
+** Toggle
+   ```bash
+   $ linux-touchpad toggle
+   ```
+** Stop
+   ```bash
+   $ linux-touchpad kill
+   ```
+* Author
+ [[https://github.com/Zer0897][Noah Corona]] \\
+ [[mailto:noah@coronasoftware.net][noah@coronasoftware.net]]
+ #+name: Logo
+ [[https://coronasoftware.net][https://coronasoftware.net/s/sLogo.png]]
