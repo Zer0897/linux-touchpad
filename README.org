@@ -18,15 +18,15 @@ unix systems.
 * Usage
 ** Start
    #+begin_src bash
-   $ linux-touchpad start
+   $ python -m linux-touchpad start
    #+end_src bash
 ** Toggle
    #+begin_src bash
-   $ linux-touchpad toggle
+   $ python -m linux-touchpad toggle
    #+end_src
 ** Stop
    #+begin_src bash
-   $ linux-touchpad stop
+   $ python -m linux-touchpad stop
    #+end_src
 * Author
  [[https://github.com/Zer0897][Noah Corona]] \\
