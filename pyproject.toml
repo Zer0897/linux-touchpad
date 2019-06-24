@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "linux-touchpad"
-version = "0.2.2"
+version = "0.2.3"
 description = "Auto-disable laptop touchpad when a mouse is detected."
 license = "MIT"
 authors = ["Noah <noah@coronasoftware.net>"]
-readme = "README.md"
+readme = "README.org"
 repository = "https://github.com/Zer0897/linux-touchpad"
 keywords = ["linux", "touchpad", "auto", "disable", "mouse"]
 packages = [{ include = "linux-touchpad" }]
