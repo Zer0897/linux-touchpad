@@ -8,8 +8,8 @@ from contextlib import suppress, contextmanager
 from .touchpad import SIGTOGGLE
 from .watchdog import WatchDog
 
-lockfp: Path = Path(__file__).with_name('.lock')
-pidfp : Path = lockfp.with_name('.pid')
+lockfp: Path = Path('/tmp') / 'linux-touchpad.lock'
+pidfp: Path = Path(__file__).with_name('.pid')
 lock = fl.FileLock(str(lockfp), timeout=1)
 
 
