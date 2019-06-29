@@ -2,25 +2,20 @@ import os
 import argparse
 import logging as log
 import filelock as fl
-from pathlib import Path
 from signal import signal, SIGTERM
 from contextlib import suppress, contextmanager
+
+from . import lock, lockfp, pidfp
 from .touchpad import SIGTOGGLE
 from .watchdog import WatchDog
-
-lockfp: Path = Path('/tmp') / 'linux-touchpad.lock'
-pidfp: Path = Path(__file__).with_name('.pid')
-lock = fl.FileLock(str(lockfp), timeout=1)
 
 
 def start():
     """Try to begin process. Fail if lock exists."""
     with suppress(fl.Timeout), lock:
         watchdog = WatchDog()
-
-        # Handle toggle and kill signals
-        signal(SIGTOGGLE, watchdog.on_toggle)
         pidfp.write_text(str(os.getpid()))
+        signal(SIGTOGGLE, watchdog.on_toggle)
         log.info('Starting watchdog.')
         watchdog.start()
 
