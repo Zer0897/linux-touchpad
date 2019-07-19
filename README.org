@@ -21,7 +21,7 @@ For a more feature-rich implementation, see [[https://launchpad.net/touchpad-ind
   #+end_src
 * Usage
 ** Start
-   To begin the process, use this command:
+   To begin the process:
    #+begin_src bash
    $ python -m linux_touchpad start
    #+end_src
