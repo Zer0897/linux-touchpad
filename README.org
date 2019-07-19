@@ -2,11 +2,15 @@
 #+author: Noah Corona
 #+email: noah@coronasoftware.net
 #+description: A simple tool for managing your touchpad.
+#+options: toc:nil
 
-Disable touchpad when a mouse is plugged in.
+A simple, lightweight command line utility for managing your touchpad.
 
-Does its best at guessing device type, it should work for most
-unix systems.
+- Disable when a mouse is detected.
+- Enabled when no mice are detected.
+- Toggle this behavior.
+
+For a more feature-rich implementation, see [[https://launchpad.net/touchpad-indicator][touchpad-indicator]].
 
 * Dependencies
   | Python 3.7 | https://www.python.org/downloads/release/python-373/ |
@@ -17,16 +21,18 @@ unix systems.
   #+end_src
 * Usage
 ** Start
+   To begin the process, use this command:
    #+begin_src bash
-   $ python -m linux-touchpad start
-   #+end_src bash
+   $ python -m linux_touchpad start
+   #+end_src
 ** Toggle
+   Enabled the touchpad and ignore mouse events:
    #+begin_src bash
-   $ python -m linux-touchpad toggle
+   $ python -m linux_touchpad toggle
    #+end_src
 ** Stop
    #+begin_src bash
-   $ python -m linux-touchpad stop
+   $ python -m linux_touchpad stop
    #+end_src
 * Author
  [[https://github.com/Zer0897][Noah Corona]] \\
