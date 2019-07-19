@@ -15,7 +15,7 @@ def start():
     with suppress(fl.Timeout), lock:
         watchdog = WatchDog()
         pidfp.write_text(str(os.getpid()))
-        signal(SIGTOGGLE, watchdog.on_toggle)
+        signal(SIGTOGGLE, watchdog.toggle_touchpad)
         log.info('Starting watchdog.')
         watchdog.start()
 

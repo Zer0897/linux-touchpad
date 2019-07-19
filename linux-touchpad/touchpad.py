@@ -5,7 +5,6 @@ SIGTOGGLE = signal.SIGUSR1
 
 
 class TouchPad:
-    toggled = False
 
     def __init__(self, device):
         self.device = device
@@ -16,6 +15,3 @@ class TouchPad:
 
     def enable(self):
         subp.run(['xinput', 'enable', self.name])
-
-    def toggle(self):
-        self.toggled = not self.toggled
