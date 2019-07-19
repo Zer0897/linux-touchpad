@@ -20,13 +20,13 @@ For a more feature-rich implementation, see [touchpad-indicator](https://launchp
 <tbody>
 <tr>
 <td class="org-left">Python 3.7</td>
-<td class="org-left"><https://www.python.org/downloads/release/python-373/></td>
+<td class="org-left">https://www.python.org/downloads/release/python-373/</td>
 </tr>
 
 
 <tr>
 <td class="org-left">Libinput</td>
-<td class="org-left"><https://wiki.archlinux.org/index.php/Libinput></td>
+<td class="org-left">https://wiki.archlinux.org/index.php/Libinput</td>
 </tr>
 </tbody>
 </table>
