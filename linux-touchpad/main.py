@@ -28,7 +28,7 @@ def stop():
         os.kill(pid, SIGTERM)
 
 def toggle():
-    """Send toggle signal to existing process if exists."""
+    """Send toggle signal if exists."""
     with suppress(FileNotFoundError):
         pid = int(pidfp.read_text())
         log.info('Requesting Toggle.')
