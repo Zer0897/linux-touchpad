@@ -10,7 +10,7 @@ unix systems.
 
 * Dependencies
   | Python 3.7 | https://www.python.org/downloads/release/python-373/ |
-  | Xinput     | https://wiki.archlinux.org/index.php/Xinput          |
+  | Libinput   | https://wiki.archlinux.org/index.php/Libinput        |
 * Install
   #+begin_src bash
   $ pip install linux-touchpad
