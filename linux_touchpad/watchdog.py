@@ -64,9 +64,9 @@ class WatchDog:
         elif device.action == 'remove':
             self._mice.remove(device)
 
-        self.__update_touchpads()
+        self.__update_touchpad()
 
-    def __update_touchpads(self):
+    def __update_touchpad(self):
         action = 'disable' if self._mice and not self.touchpad_toggled else 'enable'
         for touchpad in self._touchpads:
             getattr(touchpad, action)()
@@ -74,7 +74,7 @@ class WatchDog:
     def start(self):
         """Begin watching for devices"""
         self.__refresh_devices()
-        self.__update_touchpads()
+        self.__update_touchpad()
         for device in iter(self.monitor.poll, None):
             valid: bool = all((
                 'mouse' in device.sys_name,
@@ -86,4 +86,4 @@ class WatchDog:
 
     def toggle_touchpad(self, *_):
         self.touchpad_toggled = not self.touchpad_toggled
-        self.__update_touchpads()
+        self.__update_touchpad()
